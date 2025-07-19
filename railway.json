@@ -1,3 +1,6 @@
 {
-    "start": "gunicorn main:app"
+    "$schema": "https://railway.app/railway.schema.json",
+    "deploy": {
+      "startCommand": "gunicorn main:app"
+    }
   }
