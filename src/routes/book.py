@@ -1,10 +1,13 @@
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, g
 from src.models.book import Book, db
+from src.models.auth import Permission
+from src.utils.auth_decorators import permission_required, optional_auth
 from sqlalchemy import or_
 
 book_bp = Blueprint('book', __name__)
 
 @book_bp.route('/books', methods=['GET'])
+@optional_auth
 def get_books():
     """Get all books with optional search functionality"""
     search = request.args.get('search', '')
@@ -31,21 +34,29 @@ def get_books():
         error_out=False
     )
     
-    return jsonify({
+    response_data = {
         'books': [book.to_dict() for book in books.items],
         'total': books.total,
         'pages': books.pages,
         'current_page': page,
         'per_page': per_page
-    })
+    }
+    
+    # Add user info if authenticated
+    if g.current_user:
+        response_data['user_permissions'] = [perm.value for perm in Permission if g.current_user.has_permission(perm)]
+    
+    return jsonify(response_data)
 
 @book_bp.route('/books', methods=['POST'])
+@permission_required(Permission.CREATE_BOOK)
 def create_book():
     """Add a new book to the library"""
     try:
         print(f"Received request: {request.method}")
         print(f"Content-Type: {request.content_type}")
         print(f"Request data: {request.data}")
+        print(f"User: {g.current_user.email} ({g.current_user.role.value})")
         
         data = request.json
         print(f"Parsed JSON: {data}")
@@ -60,7 +71,7 @@ def create_book():
         book = Book(
             title=data['title'],
             author=data['author'],
-            isbn=data.get('isbn', None) if data.get('isbn', '').strip() else None,
+            isbn=data.get('isbn') if data.get('isbn') and data.get('isbn').strip() else None,
             genre=data.get('genre'),
             publication_year=data.get('publication_year'),
             description=data.get('description')
@@ -71,7 +82,11 @@ def create_book():
         db.session.commit()
         print("Book successfully added to database")
         
-        return jsonify(book.to_dict()), 201
+        return jsonify({
+            'message': 'Book created successfully',
+            'book': book.to_dict(),
+            'created_by': g.current_user.to_dict()
+        }), 201
     
     except Exception as e:
         print(f"Error occurred: {str(e)}")
@@ -79,12 +94,14 @@ def create_book():
         return jsonify({'error': str(e)}), 500
 
 @book_bp.route('/books/<int:book_id>', methods=['GET'])
+@optional_auth
 def get_book(book_id):
     """Get a specific book by ID"""
     book = Book.query.get_or_404(book_id)
     return jsonify(book.to_dict())
 
 @book_bp.route('/books/<int:book_id>', methods=['PUT'])
+@permission_required(Permission.UPDATE_BOOK)
 def update_book(book_id):
     """Update a book's information"""
     try:
@@ -107,6 +124,7 @@ def update_book(book_id):
         return jsonify({'error': str(e)}), 500
 
 @book_bp.route('/books/<int:book_id>', methods=['DELETE'])
+@permission_required(Permission.DELETE_BOOK)
 def delete_book(book_id):
     """Delete a book from the library"""
     try:
@@ -125,6 +143,7 @@ def delete_book(book_id):
         return jsonify({'error': str(e)}), 500
 
 @book_bp.route('/books/<int:book_id>/checkout', methods=['POST'])
+@permission_required(Permission.CHECKOUT_BOOK)
 def checkout_book(book_id):
     """Check out a book to a borrower"""
     try:
@@ -155,6 +174,7 @@ def checkout_book(book_id):
         return jsonify({'error': str(e)}), 500
 
 @book_bp.route('/books/<int:book_id>/checkin', methods=['POST'])
+@permission_required(Permission.CHECKIN_BOOK)
 def checkin_book(book_id):
     """Check in a book (return it)"""
     try:
@@ -176,6 +196,7 @@ def checkin_book(book_id):
         return jsonify({'error': str(e)}), 500
 
 @book_bp.route('/books/search', methods=['GET'])
+@optional_auth
 def search_books():
     """Advanced search for books"""
     title = request.args.get('title', '')
@@ -201,6 +222,7 @@ def search_books():
     return jsonify([book.to_dict() for book in books])
 
 @book_bp.route('/books/stats', methods=['GET'])
+@permission_required(Permission.VIEW_LIBRARY_STATS)
 def get_library_stats():
     """Get library statistics"""
     total_books = Book.query.count()
