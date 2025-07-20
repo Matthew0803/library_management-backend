@@ -60,7 +60,7 @@ def create_book():
         book = Book(
             title=data['title'],
             author=data['author'],
-            isbn=data.get('isbn'),
+            isbn=data.get('isbn') if data.get('isbn') and data.get('isbn').strip() else None,
             genre=data.get('genre'),
             publication_year=data.get('publication_year'),
             description=data.get('description')
