@@ -1,7 +1,7 @@
 from functools import wraps
 from flask import request, jsonify, g
 from src.services.auth_service import auth_service
-from src.models.auth import Permission
+from src.models.user import Permission
 
 def token_required(f):
     """Decorator to require valid JWT token"""

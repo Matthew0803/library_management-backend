@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request, g
 from src.models.book import Book, db
-from src.models.auth import Permission
+from src.models.user import Permission
 from src.utils.auth_decorators import permission_required, optional_auth
 from sqlalchemy import or_
 

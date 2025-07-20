@@ -1,7 +1,6 @@
 from flask import Blueprint, request, jsonify, g
 from src.services.auth_service import auth_service
-from src.models.auth import User, UserRole, Permission
-from src.models.user import db
+from src.models.user import User, UserRole, Permission, db
 from src.utils.auth_decorators import token_required, permission_required, admin_required
 
 auth_bp = Blueprint('auth', __name__)

@@ -4,8 +4,7 @@ import secrets
 from datetime import datetime, timedelta
 from google.auth.transport import requests
 from google.oauth2 import id_token
-from src.models.auth import User, RefreshToken, UserRole
-from src.models.user import db
+from src.models.user import User, RefreshToken, UserRole, db
 
 class AuthService:
     def __init__(self, app=None):
