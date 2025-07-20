@@ -14,7 +14,8 @@ app = Flask(__name__, static_folder=os.path.join(os.path.dirname(__file__), 'sta
 app.config['SECRET_KEY'] = 'asdf#FGSgvasgf$5$WGT'
 
 # Enable CORS for all routes
-CORS(app)
+# Example for when you have a specific frontend domain
+CORS(app, resources={r"/api/*": {"origins": ["https://librarymanagement-backend-production.up.railway.app", "http://localhost:3000"]}})
 
 app.register_blueprint(user_bp, url_prefix='/api')
 app.register_blueprint(book_bp, url_prefix='/api')
