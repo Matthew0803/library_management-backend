@@ -43,11 +43,19 @@ def get_books():
 def create_book():
     """Add a new book to the library"""
     try:
+        print(f"Received request: {request.method}")
+        print(f"Content-Type: {request.content_type}")
+        print(f"Request data: {request.data}")
+        
         data = request.json
+        print(f"Parsed JSON: {data}")
         
         # Validate required fields
         if not data.get('title') or not data.get('author'):
+            print("Validation failed: Missing title or author")
             return jsonify({'error': 'Title and author are required'}), 400
+        
+        print(f"Creating book with title: {data['title']}, author: {data['author']}")
         
         book = Book(
             title=data['title'],
@@ -58,12 +66,15 @@ def create_book():
             description=data.get('description')
         )
         
+        print("Book object created, adding to database...")
         db.session.add(book)
         db.session.commit()
+        print("Book successfully added to database")
         
         return jsonify(book.to_dict()), 201
     
     except Exception as e:
+        print(f"Error occurred: {str(e)}")
         db.session.rollback()
         return jsonify({'error': str(e)}), 500
 
@@ -206,4 +217,3 @@ def get_library_stats():
         'checked_out_books': checked_out_books,
         'overdue_books': overdue_books
     })
-

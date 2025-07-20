@@ -10,11 +10,11 @@ from src.models.book import Book
 from src.routes.user import user_bp
 from src.routes.book import book_bp
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder=os.path.join(os.path.dirname(__file__), 'static'))
 app.config['SECRET_KEY'] = 'asdf#FGSgvasgf$5$WGT'
 
 # Enable CORS for all routes
-CORS(app, resources={r"/api/*": {"origins": "https://librarymanagement-backend-production.up.railway.app/api"}})
+CORS(app)
 
 app.register_blueprint(user_bp, url_prefix='/api')
 app.register_blueprint(book_bp, url_prefix='/api')
