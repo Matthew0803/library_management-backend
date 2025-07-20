@@ -15,7 +15,7 @@ app.config['SECRET_KEY'] = 'asdf#FGSgvasgf$5$WGT'
 
 # Enable CORS for all routes
 # Example for when you have a specific frontend domain
-CORS(app, resources={r"/api/*": {"origins": ["https://librarymanagement-backend-production.up.railway.app", "http://localhost:3000"]}})
+CORS(app, resources={r"/api/*": {"origins": ["https://librarymanagement-backend-production.up.railway.app", "https://library-nextjs-2lzi.vercel.app/"]}})
 
 app.register_blueprint(user_bp, url_prefix='/api')
 app.register_blueprint(book_bp, url_prefix='/api')
