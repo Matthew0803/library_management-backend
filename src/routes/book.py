@@ -60,7 +60,7 @@ def create_book():
         book = Book(
             title=data['title'],
             author=data['author'],
-            isbn=data.get('isbn') if data.get('isbn') and data.get('isbn').strip() else None,
+            isbn=data.get('isbn', None) if data.get('isbn', '').strip() else None,
             genre=data.get('genre'),
             publication_year=data.get('publication_year'),
             description=data.get('description')
@@ -94,7 +94,7 @@ def update_book(book_id):
         # Update fields if provided
         book.title = data.get('title', book.title)
         book.author = data.get('author', book.author)
-        book.isbn = data.get('isbn', book.isbn)
+        book.isbn = data.get('isbn', None) if data.get('isbn', '').strip() else None
         book.genre = data.get('genre', book.genre)
         book.publication_year = data.get('publication_year', book.publication_year)
         book.description = data.get('description', book.description)
