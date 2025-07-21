@@ -31,8 +31,8 @@ def google_auth():
             print(f"Updated role for {user.email} to {new_role.value}")
         
         # Generate JWT tokens
-        access_token = auth_service.generate_access_token(user.id)
-        refresh_token_str = auth_service.generate_refresh_token(user.id)
+        access_token = auth_service.generate_access_token(user)
+        refresh_token_str = auth_service.generate_refresh_token(user)
         
         return jsonify({
             'access_token': access_token,
