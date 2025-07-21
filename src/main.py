@@ -57,7 +57,7 @@ with app.app_context():
         )
         db.session.add(admin_user)
         db.session.commit()
-        print("Created default admin user: mattwong0803@gmail.com")
+        print("Created default admin user: admin@library.com")
 
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
