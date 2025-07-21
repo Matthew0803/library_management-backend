@@ -6,30 +6,37 @@ from src.utils.auth_decorators import token_required, permission_required, admin
 auth_bp = Blueprint('auth', __name__)
 
 @auth_bp.route('/auth/google', methods=['POST'])
-def google_login():
-    """Login with Google OAuth token"""
+def google_auth():
+    """Handle Google OAuth authentication"""
     try:
         data = request.json
-        google_token = data.get('token')
+        token = data.get('token')
         
-        if not google_token:
-            return jsonify({'error': 'Google token is required'}), 400
+        if not token:
+            return jsonify({'error': 'Token is required'}), 400
         
-        # Verify Google token
-        user_info = auth_service.verify_google_token(google_token)
+        # Verify Google token and get user info
+        user_info = auth_service.verify_google_token(token)
         if not user_info:
             return jsonify({'error': 'Invalid Google token'}), 401
         
-        # Create or update user
+        # Create or update user with automatic role assignment
         user = auth_service.create_or_update_user(user_info)
         
-        # Generate tokens
-        access_token = auth_service.generate_access_token(user)
-        refresh_token = auth_service.generate_refresh_token(user)
+        # Update role for existing users (in case email lists changed)
+        new_role = auth_service.determine_user_role(user.email)
+        if user.role != new_role:
+            user.role = new_role
+            db.session.commit()
+            print(f"Updated role for {user.email} to {new_role.value}")
+        
+        # Generate JWT tokens
+        access_token = auth_service.generate_access_token(user.id)
+        refresh_token_str = auth_service.generate_refresh_token(user.id)
         
         return jsonify({
             'access_token': access_token,
-            'refresh_token': refresh_token,
+            'refresh_token': refresh_token_str,
             'user': user.to_dict()
         }), 200
         

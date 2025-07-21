@@ -41,6 +41,24 @@ class AuthService:
             print(f"Token verification failed: {e}")
             return None
     
+    def determine_user_role(self, email):
+        """Determine user role based on environment variables"""
+        # Get email lists from environment variables
+        admin_emails = os.environ.get('ADMIN_EMAILS', '').split(',')
+        librarian_emails = os.environ.get('LIBRARIAN_EMAILS', '').split(',')
+        
+        # Clean up emails (remove whitespace)
+        admin_emails = [email.strip() for email in admin_emails if email.strip()]
+        librarian_emails = [email.strip() for email in librarian_emails if email.strip()]
+        
+        # Check role based on email
+        if email in admin_emails:
+            return UserRole.ADMIN
+        elif email in librarian_emails:
+            return UserRole.LIBRARIAN
+        else:
+            return UserRole.MEMBER
+    
     def create_or_update_user(self, user_info):
         """Create a new user or update existing user from Google OAuth"""
         user = User.query.filter_by(email=user_info['email']).first()
@@ -58,7 +76,7 @@ class AuthService:
                 name=user_info['name'],
                 google_id=user_info['google_id'],
                 profile_picture=user_info['profile_picture'],
-                role=UserRole.MEMBER  # Default role for new users
+                role=self.determine_user_role(user_info['email'])  # Determine role based on email
             )
             db.session.add(user)
         
