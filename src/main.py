@@ -51,7 +51,7 @@ with app.app_context():
     # Create default admin user if no users exist
     if User.query.count() == 0:
         admin_user = User(
-            email='mattwong0803@gmail.com',
+            email='admin@library.com',
             name='System Administrator',
             role=UserRole.ADMIN
         )
