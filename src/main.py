@@ -21,7 +21,9 @@ app.config['GOOGLE_CLIENT_ID'] = os.environ.get('GOOGLE_CLIENT_ID')
 
 # Enable CORS for all routes
 # Example for when you have a specific frontend domain
-CORS(app, resources={r"/api/*": {"origins": ["https://library-nextjs-2lzi.vercel.app", "http://localhost:3000"]}})
+CORS(app, 
+     resources={r"/api/*": {"origins": ["https://library-nextjs-2lzi.vercel.app", "http://localhost:3000"]}},
+     supports_credentials=True)
 
 # Register blueprints
 app.register_blueprint(user_bp, url_prefix='/api')
