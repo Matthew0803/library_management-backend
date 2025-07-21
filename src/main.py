@@ -51,13 +51,13 @@ with app.app_context():
     # Create default admin user if no users exist
     if User.query.count() == 0:
         admin_user = User(
-            email='admin@library.com',
+            email='mattwong0803@gmail.com',
             name='System Administrator',
             role=UserRole.ADMIN
         )
         db.session.add(admin_user)
         db.session.commit()
-        print("Created default admin user: admin@library.com")
+        print("Created default admin user: mattwong0803@gmail.com")
 
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
